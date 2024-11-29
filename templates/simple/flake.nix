@@ -16,7 +16,7 @@
     inherit (self) outputs;
     system = "x86_64-linux";
   in {
-    nixosConfigurations.Namaku1801 = lib.nixosSystem {
+    nixosConfigurations.default = lib.nixosSystem {
       modules = [
         inputs.nvchad.nixosModules.default
         ({ lib, ... }: {

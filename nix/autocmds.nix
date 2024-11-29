@@ -5,6 +5,7 @@
     autoGroups.NvFilePost.clear = true;
     autoCmd = [
     {
+      group = "NvFilePost";
       event = [ "UIEnter" "BufReadPost" "BufNewFile" ];
       callback.__raw = nixvimLib.helpers.mkLuaFn [ "args" ] /* lua */ ''
         local file = vim.api.nvim_buf_get_name(args.buf)
