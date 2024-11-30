@@ -1,9 +1,9 @@
-<h1 align="center">NvChad x Nixvim</h1>
-<h2 align="center">
+<div align="center">
   <picture>
     <img src="https://fmway.id/nvchad-nixvim.svg" width="20%" />
   </picture>
-</h2>
+</div>
+<h1 align="center">NvChad x Nixvim</h1>
 
 > [!IMPORTANT]
 > Documentation is still in Work In Progress
