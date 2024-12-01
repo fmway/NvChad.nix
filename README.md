@@ -1,6 +1,6 @@
 <div align="center">
   <picture>
-    <img src="https://fmway.id/nvchad-nixvim.svg" width="20%" />
+    <img src="https://fmway.id/logo/nvchad-nixvim.svg" width="20%" />
   </picture>
 </div>
 <h1 align="center">NvChad x Nixvim</h1>
