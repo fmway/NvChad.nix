@@ -1,0 +1,25 @@
+name: CI
+on:
+  push:
+    branches: [master]
+
+permissions: write-all
+
+jobs:
+  build:
+    runs-on: [ ubuntu-latest ]
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@main
+      with:
+        github-token: ${{ secrets.GH_TOKEN }}
+        extra-conf: "experimental-features = nix-command flakes pipe-operators"
+    - uses: DeterminateSystems/magic-nix-cache-action@main
+      with:
+        use-flakehub: false
+    - uses: cachix/cachix-action@master
+      with:
+        name: fmcachix
+        # If you chose API tokens for write access OR if you have a private cache
+        authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+    - run: nix build .#simple --verbose
