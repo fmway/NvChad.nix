@@ -2,6 +2,10 @@ name: CI
 on:
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: '0 0 * * 2,5' # every Tuesday & Friday
 
 permissions: write-all
 
@@ -23,3 +27,38 @@ jobs:
         # If you chose API tokens for write access OR if you have a private cache
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - run: nix build .#simple --verbose
+
+  lockfile:
+    runs-on: [ubuntu-latest]
+    if: ${{ github.event_name == 'schedule' }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DeterminateSystems/nix-installer-action@main
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        extra-conf: experimental-features = nix-command flakes auto-allocate-uids configurable-impure-env
+    - uses: DeterminateSystems/update-flake-lock@v24
+      name: Update flake.lock
+      with:
+        branch: nightly-update
+        token: ${{ secrets.GITHUB_TOKEN }}
+        git-author-name: 'little fmway'
+        git-author-email: 'fm18lv@gmail.com'
+        git-committer-name: 'little fmway'
+        git-committer-email: 'fm18lv@gmail.com'
+        commit-msg: 'chore(lockfile): update flake.lock'
+        pr-title: 'chore(lockfile): update flake.lock'
+        pr-labels: |
+          dependencies
+          automated
+
+  auto-merge:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+    - run: gh pr merge --auto --merge "$PR_URL"
+      env:
+        PR_URL: ${{github.event.pull_request.html_url}}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
