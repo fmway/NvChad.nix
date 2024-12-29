@@ -16,32 +16,29 @@
           ./nix
           ./modules
         ];
-        extraSpecialArgs = genSpecialArgs system // { inherit inputs; };
+        extraSpecialArgs = specialArgs // { inherit inputs; };
       };
-    getLib = system:
-      inputs.nixvim.lib.${system};
-    genSpecialArgs = system: let
-      nixvimLib = getLib system;
+    specialArgs = let
+      nixvimLib = inputs.nixvim.lib.nixvim;
     in {
-      nixvimLib = nixvimLib // {
-        helpers = nixvimLib.helpers // (let
-          generator = { name ? "", args ? [], lua ? "", ... }:
-          ''
-            function${if name == "" then "" else " ${name}"}(${builtins.concatStringsSep ", " args})
-              ${lua}
-            end
-          '';
-        in {
-          mkLuaFnWithName = name: x: if builtins.isList x then
-            lua: generator { inherit name lua; args = x; }
-          else generator { inherit name; args = []; lua = x; };
+      nixvimLib.helpers = nixvimLib // (let
+        generator = { name ? "", args ? [], lua ? "", ... }:
+        ''
+          function${if name == "" then "" else " ${name}"}(${builtins.concatStringsSep ", " args})
+            ${lua}
+          end
+        '';
+      in {
+        mkLuaFnWithName = name: x: if builtins.isList x then
+          lua: generator { inherit name lua; args = x; }
+        else generator { inherit name; args = []; lua = x; };
 
-          mkLuaFn = x: if builtins.isList x then
-            lua: generator { inherit lua; args = x; }
-          else generator { args = []; lua = x; };
-        });
-      };
+        mkLuaFn = x: if builtins.isList x then
+          lua: generator { inherit lua; args = x; }
+        else generator { args = []; lua = x; };
+      });
     };
+    
   in 
   inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
@@ -59,12 +56,12 @@
       };
     };
   } // builtins.listToAttrs (map (name: let
-    nvchad = { pkgs, ... }: {
+    nvchad = { ... }: {
       imports = [ inputs.nixvim.${name}.nixvim ];
       programs.nixvim.imports = [
         {
           _file = ./flake.nix;
-          _module.args = genSpecialArgs pkgs.system;
+          _module.args = specialArgs;
           inherit disabledModules;
         }
         ./nix
