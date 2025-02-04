@@ -62,6 +62,7 @@
           _module.args = specialArgs;
           inherit disabledModules;
         }
+        { nixpkgs.useGlobalPackages = true; }
         ./nix
         ./modules
       ];
