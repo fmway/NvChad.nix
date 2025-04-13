@@ -41,7 +41,7 @@
   in inputs.flake-parts.lib.mkFlake { inherit inputs; } {
     systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
     flake = { inherit inputs; lib = { inherit mkNvchad; }; };
-    perSystem = { config, self', inputs', pkgs, system, ... }: {
+    perSystem = { config, lib, self', inputs', pkgs, system, ... }: {
       packages = inputs.nixvim.packages.${system} // rec {
         nvchad = mkNvchad { inherit system; };
         simple = mkNvchad {
@@ -51,6 +51,11 @@
           ];
         };
         default = nvchad;
+      };
+      devShells.default = pkgs.mkShellNoCC {
+        NIXD_PATH = lib.concatStringsSep ":" [
+          "nixvim=${inputs.self.outPath}#packages.${system}.nvchad.options"
+        ];
       };
     };
   } // builtins.listToAttrs (map (name: let
