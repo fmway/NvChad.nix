@@ -7,6 +7,12 @@ on:
   schedule:
     - cron: '0 0 * * 2,5' # every Tuesday & Friday
 
+env:
+  setup-git: |
+    git config --global user.name 'me'
+    git config --global user.email 'fm18lv@gmail.com'
+    git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
+
 permissions: write-all
 
 jobs:
@@ -14,19 +20,23 @@ jobs:
     runs-on: [ ubuntu-latest ]
     steps:
     - uses: actions/checkout@v4
+    - name: Setup Git
+      run: ${{ env.setup-git }}
     - uses: DeterminateSystems/nix-installer-action@main
       with:
         github-token: ${{ secrets.GH_TOKEN }}
         extra-conf: "experimental-features = nix-command flakes pipe-operators"
-    - uses: DeterminateSystems/magic-nix-cache-action@main
-      with:
-        use-flakehub: false
     - uses: cachix/cachix-action@master
       with:
         name: fmcachix
         # If you chose API tokens for write access OR if you have a private cache
         authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
     - run: nix build .#simple --verbose
+    - name: Update nightly-update branch
+      run: |
+        git pull
+        git branch -f nightly-update
+        git push --force origin nightly-update
 
   lockfile:
     runs-on: [ubuntu-latest]
