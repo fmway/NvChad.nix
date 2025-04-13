@@ -1,4 +1,11 @@
-{ lib, helpers, config, pkgs, ... }: with lib;
+{
+  lib,
+  helpers,
+  config,
+  pkgs,
+  ...
+}:
+with lib;
 let
   cfg = config.plugins.lazy;
   lazyPlugins = cfg.plugins;
@@ -30,6 +37,14 @@ let
   lazyPath = pkgs.linkFarm "lazy-plugins" processedPlugins;
 in
 {
+  # TODO: added 2025-04-06, remove after 25.05
+  imports = [
+    (lib.nixvim.mkRemovedPackageOptionModule {
+      plugin = "lazy";
+      packageName = "git";
+    })
+  ];
+
   options = {
     plugins.lazy = {
       enable = mkEnableOption "lazy.nvim";
@@ -39,13 +54,9 @@ in
         "lazy-nvim"
       ] { };
 
-      opts = lib.mkOption {
+      extraParams = lib.mkOption {
         type = lib.types.attrs;
         default = {};
-      };
-
-      gitPackage = lib.mkPackageOption pkgs "git" {
-        nullable = true;
       };
 
       plugins =
@@ -160,15 +171,12 @@ in
   config = mkIf cfg.enable {
     extraPlugins = [ cfg.package ];
 
-    extraPackages = [ cfg.gitPackage ];
+    dependencies.git.enable = lib.mkDefault true;
 
     extraConfigLua =
       let
         pluginToLua =
           plugin:
-          let
-            keyExists = keyToCheck: attrSet: lib.elem keyToCheck (lib.attrNames attrSet);
-          in
           if isDerivation plugin then
             { dir = "${lazyPath}/${lib.getName plugin}"; }
           else
@@ -208,17 +216,16 @@ in
         plugins = pluginListToLua cfg.plugins;
 
         packedPlugins = if length plugins == 1 then head plugins else plugins;
-        result = {
+        params = cfg.extraParams // {
           dev = {
             path = "${lazyPath}";
             patterns = ["."];
             fallback = false;
           };
           spec = packedPlugins;
-        } // cfg.opts;
-      in
-      mkIf (cfg.plugins != [ ]) ''
-        require('lazy').setup(${helpers.toLuaObject result})
+        };
+      in mkIf (cfg.plugins != [ ]) ''
+        require('lazy').setup(${helpers.toLuaObject params})
       '';
   };
 }

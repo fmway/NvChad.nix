@@ -8,7 +8,7 @@
   ];
   config = lib.mkIf config.nvchad.enable {
     plugins.lazy.enable = true;
-    plugins.lazy.opts = {
+    plugins.lazy.extraParams = {
       defaults = { lazy = true; };
       install = { colorscheme = [ "nvchad" ]; };
 
