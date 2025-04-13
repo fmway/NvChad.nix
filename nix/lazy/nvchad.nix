@@ -35,6 +35,23 @@
   };
 in {
   _file = ./nvchad.nix;
+  options = {
+    build.nvconfig = lib.mkOption {
+      type = lib.types.package;
+      readOnly = true;
+      default = nvconfig;
+    };
+    build.base46 = lib.mkOption {
+      type = lib.types.package;
+      readOnly = true;
+      default = base46-cache;
+    };
+    build.nvchad-ui = lib.mkOption {
+      type = lib.types.package;
+      readOnly = true;
+      default = nvchad-ui-patch;
+    };
+  };
   config = lib.mkIf config.nvchad.enable {
     extraPlugins = [
       nvchad-ui-patch
