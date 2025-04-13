@@ -1,7 +1,7 @@
 {
   description = "A Nix-flake-based Python development environment";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     nixvim.url = "github:nix-community/nixvim";
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-compat.url = "https://flakehub.com/f/edolstra/flake-compat/1.tar.gz";
