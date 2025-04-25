@@ -2,6 +2,9 @@
   inherit (nixvimLib) helpers;
   inherit (helpers) mkLuaFn mkLuaFnWithName;
   nvchad-ui-patch = pkgs.vimPlugins.nvchad-ui.overrideAttrs (old: {
+    nvimSkipModules = (old.nvimSkipModules or []) ++ [
+      "nvchad.au"
+    ];
     src = pkgs.stdenv.mkDerivation {
       inherit (old) name src;
       installPhase = ''
