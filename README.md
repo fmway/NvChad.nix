@@ -5,8 +5,8 @@
 </div>
 <h1 align="center">NvChad x Nixvim</h1>
 
-> [!IMPORTANT]
-> Documentation is still in Work In Progress
+> [!WARNING]
+> The Project is moved to https://github.com/fmway/NxChad 🗿
 
 ### Includes:
 - [x] lazy plugins by default (except lspconfig and tsserver)
